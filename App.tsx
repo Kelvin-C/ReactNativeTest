@@ -6,8 +6,9 @@ export default function App() {
 	const [values, setValues] = React.useState<number[]>(generateRandomNonSortedIntegers(0, 10, 4));
 	const [selectedValue, setSelectedValue] = React.useState<number | null>(null);
 
-	// Get a sorted copy of the values
+	// Get a sorted copy of the values to check if the user has won
 	const sortedValues = [...values].sort();
+	const hasWon = arraysAreEqual(values, sortedValues);
 
 	/** Generates a randomly generated array of numbers that are not sorted */
 	function generateRandomNonSortedIntegers(min: number, max: number, count: number): number[] {
@@ -52,9 +53,13 @@ export default function App() {
 		<Rn.View style={styles.container}>
 			{/* Generate a button for each value */}
 			{values.map(value => (
-				<Rn.Button
+				<Rn.Pressable
 					key={value}
-					title={value.toString()}
+					style={{
+						backgroundColor: hasWon || selectedValue === value ? "#009900" : "#990000",
+						...styles.numberButton
+					}}
+					disabled={hasWon}
 					onPress={() => {
 						if (selectedValue === null) {
 							// If we haven't selected a value already, then we select this one
@@ -81,11 +86,12 @@ export default function App() {
 							setSelectedValue(null);
 						}
 					}}
-					color={selectedValue === value ? "#009900" : "#990000"}
-				/>
+				>
+					<Rn.Text style={styles.numberText}>{value}</Rn.Text>
+				</Rn.Pressable>
 			))}
 			{/* Show the winning message if the user sorts the values */}
-			{arraysAreEqual(values, sortedValues) && <Rn.Text>You win!</Rn.Text>}
+			{hasWon && <Rn.Text style={styles.winText}>You win!</Rn.Text>}
 			<StatusBar style="dark" />
 		</Rn.View>
 	);
@@ -98,9 +104,17 @@ const styles = Rn.StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
+	numberButton: {
+		padding: 15,
+		margin: 5
+	},
+	numberText: {
+		color: "#ffffff",
+		fontSize: 20
+	},
 	winText: {
 		color: "#000099",
 		fontWeight: "bold",
-		fontSize: 20
+		fontSize: 40
 	}
 });
